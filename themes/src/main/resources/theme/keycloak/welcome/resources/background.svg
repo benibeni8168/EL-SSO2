@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="teindi-bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#091321" />
+      <stop offset="55%" stop-color="#0E1D31" />
+      <stop offset="100%" stop-color="#162941" />
+    </linearGradient>
+    <radialGradient id="teindi-glow-blue" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#55A4FF" stop-opacity=".7" />
+      <stop offset="100%" stop-color="#55A4FF" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="teindi-glow-orange" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF7134" stop-opacity=".65" />
+      <stop offset="100%" stop-color="#FF7134" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#teindi-bg)" />
+  <circle cx="1260" cy="170" r="260" fill="url(#teindi-glow-blue)" />
+  <circle cx="320" cy="720" r="320" fill="url(#teindi-glow-orange)" />
+  <circle cx="900" cy="580" r="340" fill="url(#teindi-glow-blue)" opacity=".4" />
+  <path d="M0 742C166 662 298 626 397 634c149 12 225 118 380 118c169 0 289-119 453-119c117 0 240 42 370 125V900H0z" fill="#08111D" opacity=".75" />
+  <g fill="none" opacity=".18" stroke="#8FC9FF" stroke-width="1.5">
+    <path d="M1165 130c94 0 170 76 170 170" />
+    <path d="M1116 131c0-118 95-213 213-213" />
+    <path d="M227 617c0-82 66-149 149-149" />
+    <path d="M1190 688c0-121 98-219 219-219" />
+  </g>
+</svg>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.2.xsd">
+
+    <changeSet author="keycloak" id="27.0.0-add-event-integrity-hash">
+        <preConditions onFail="MARK_RAN" onSqlOutput="TEST">
+            <not>
+                <columnExists tableName="EVENT_ENTITY" columnName="INTEGRITY_HASH"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="EVENT_ENTITY">
+            <column name="INTEGRITY_HASH" type="VARCHAR(64)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="keycloak" id="27.0.0-add-admin-event-integrity-hash">
+        <preConditions onFail="MARK_RAN" onSqlOutput="TEST">
+            <not>
+                <columnExists tableName="ADMIN_EVENT_ENTITY" columnName="INTEGRITY_HASH"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="ADMIN_EVENT_ENTITY">
+            <column name="INTEGRITY_HASH" type="VARCHAR(64)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

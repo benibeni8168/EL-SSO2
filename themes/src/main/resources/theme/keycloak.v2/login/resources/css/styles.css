@@ -1,0 +1,464 @@
+:root {
+    --teindi-blue: #5aa4ff;
+    --teindi-blue-strong: #4f8ef6;
+    --teindi-orange: #ff7134;
+    --teindi-ink: #081321;
+    --teindi-ink-soft: rgba(8, 19, 33, 0.78);
+    --teindi-panel: rgba(10, 22, 37, 0.8);
+    --teindi-panel-edge: rgba(143, 201, 255, 0.14);
+    --teindi-text: #eef4fb;
+    --teindi-text-muted: #98a9bf;
+    --teindi-field: rgba(7, 18, 30, 0.62);
+    --teindi-field-border: rgba(143, 201, 255, 0.15);
+    --teindi-field-focus: rgba(90, 164, 255, 0.55);
+    --keycloak-logo-width: 300px;
+}
+
+.login-pf,
+.login-pf body {
+    min-height: 100%;
+}
+
+html.login-pf {
+    min-height: 100%;
+    background:
+        radial-gradient(circle at 14% 22%, rgba(255, 113, 52, 0.08), rgba(255, 113, 52, 0) 34%),
+        radial-gradient(circle at 86% 12%, rgba(90, 164, 255, 0.12), rgba(90, 164, 255, 0) 38%),
+        linear-gradient(135deg, #07121d 0%, #0b1b2f 54%, #153458 100%);
+    background-attachment: fixed;
+}
+
+.login-pf body {
+    min-height: 100vh;
+    background: transparent;
+    color: var(--teindi-text);
+    position: relative;
+    overflow-x: hidden;
+}
+
+.login-pf body::before,
+.login-pf body::after {
+    content: none;
+}
+
+.pf-v5-c-login {
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1rem, 2.6vw, 2.5rem);
+    position: relative;
+    z-index: 1;
+}
+
+.pf-v5-c-login__container {
+    grid-template-columns: minmax(0, 38rem);
+    grid-template-areas:
+        "header"
+        "main";
+    width: min(100%, 42rem);
+    max-width: 42rem;
+    margin: 0 auto;
+    gap: 1rem;
+}
+
+#kc-header {
+    padding: 0;
+}
+
+#kc-header-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    align-items: flex-start;
+    color: var(--teindi-text) !important;
+    text-align: left;
+    width: min(100%, 30rem);
+}
+
+.teindi-brand-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #d9e5f5;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.teindi-brand-badge::before {
+    content: "";
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--teindi-orange), var(--teindi-blue));
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.04);
+}
+
+.teindi-brand-copy {
+    margin: 0;
+    max-width: 33rem;
+    color: var(--teindi-text-muted);
+    font-size: 0.98rem;
+    line-height: 1.6;
+}
+
+.teindi-brand-logo {
+    display: block;
+    width: min(100%, var(--keycloak-logo-width));
+    height: auto;
+    object-fit: contain;
+}
+
+.pf-v5-c-login__main {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--teindi-panel-edge);
+    border-radius: 28px;
+    background:
+        linear-gradient(180deg, rgba(16, 32, 52, 0.92), rgba(8, 18, 29, 0.94)),
+        linear-gradient(135deg, rgba(90, 164, 255, 0.1), rgba(255, 113, 52, 0.05));
+    box-shadow: 0 32px 80px rgba(2, 8, 17, 0.46);
+    backdrop-filter: blur(18px);
+}
+
+.pf-v5-c-login__main::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--teindi-orange), var(--teindi-blue));
+}
+
+.pf-v5-c-login__main-header {
+    border-top: 0;
+    padding: 2rem 2rem 0.9rem;
+}
+
+.pf-v5-c-login__main-body {
+    padding: 0 2rem 2rem;
+}
+
+.pf-v5-c-login__main-title {
+    color: #fff;
+    font-size: clamp(2rem, 4vw, 2.6rem);
+    letter-spacing: -0.03em;
+}
+
+.pf-v5-c-login__main-footer {
+    padding-inline: 2rem;
+}
+
+.pf-v5-c-form__label-text,
+.pf-v5-c-helper-text__item,
+.pf-v5-c-login__main-footer,
+.subtitle,
+.kc-feedback-text {
+    color: var(--teindi-text-muted);
+}
+
+#kc-form .pf-v5-c-form-control,
+#kc-form #kc-attempted-username,
+#kc-form .pf-v5-c-form-control.pf-m-required {
+    min-height: 3.15rem;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid var(--teindi-field-border);
+    border-radius: 16px;
+    background: var(--teindi-field);
+    color: #eef4fb !important;
+    -webkit-text-fill-color: #eef4fb;
+    caret-color: #eef4fb;
+    box-shadow: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+#kc-form .pf-v5-c-form-control::placeholder,
+#kc-form #kc-attempted-username::placeholder {
+    color: #7f90a7;
+}
+
+#kc-form input.pf-v5-c-form-control,
+#kc-form input#username,
+#kc-form input#password,
+#kc-form input#password-confirm,
+#kc-form input#kc-attempted-username {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    border: 0 !important;
+    border-radius: inherit;
+    outline: 0 !important;
+    appearance: none;
+    background: transparent !important;
+    color: #eef4fb !important;
+    -webkit-text-fill-color: #eef4fb;
+    caret-color: #eef4fb;
+    box-shadow: none !important;
+}
+
+#kc-form .pf-v5-c-form-control:hover,
+#kc-form .pf-v5-c-form-control:focus,
+#kc-form .pf-v5-c-form-control:focus-visible,
+#kc-form .pf-v5-c-form-control:focus-within,
+#kc-form #kc-attempted-username:focus,
+#kc-form #kc-attempted-username:focus-visible {
+    border-color: var(--teindi-field-focus);
+    outline: none;
+    box-shadow: none !important;
+}
+
+#kc-form .pf-v5-c-form-control::before,
+#kc-form .pf-v5-c-form-control::after {
+    content: none !important;
+}
+
+#kc-form .pf-v5-c-input-group {
+    align-items: stretch;
+    width: 100%;
+    min-height: 3.15rem;
+    border: 1px solid var(--teindi-field-border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--teindi-field);
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+#kc-form .pf-v5-c-input-group:focus-within {
+    border-color: var(--teindi-field-focus);
+    box-shadow: none !important;
+}
+
+#kc-form .pf-v5-c-input-group__item.pf-m-fill {
+    min-width: 0;
+}
+
+#kc-form .pf-v5-c-input-group .pf-v5-c-form-control {
+    align-items: stretch;
+    min-height: 100%;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+#kc-form .pf-v5-c-input-group .pf-v5-c-form-control:focus-within {
+    border-color: transparent;
+    box-shadow: none;
+}
+
+#kc-form .pf-v5-c-input-group .pf-v5-c-button {
+    min-width: 4.5rem;
+    border: 0;
+    border-inline-start: 1px solid rgba(143, 201, 255, 0.14);
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: none;
+}
+
+#kc-form .pf-v5-c-input-group .pf-v5-c-button:hover,
+#kc-form .pf-v5-c-input-group .pf-v5-c-button:focus {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#kc-form .pf-v5-c-input-group .pf-v5-c-button,
+#kc-form .pf-v5-c-form-control__toggle-icon {
+    color: #b6c7dc;
+}
+
+.pf-v5-c-button {
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.pf-v5-c-button.pf-m-primary {
+    border: none;
+    background: linear-gradient(135deg, var(--teindi-blue-strong), #73b8ff);
+    color: #06111b;
+    box-shadow: 0 16px 32px rgba(79, 142, 246, 0.35);
+}
+
+.pf-v5-c-button.pf-m-primary:hover,
+.pf-v5-c-button.pf-m-primary:focus {
+    background: linear-gradient(135deg, #76b9ff, #94cbff);
+    color: #04101a;
+}
+
+.pf-v5-c-button.pf-m-secondary,
+.pf-v5-c-button.pf-m-control {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #dce7f5;
+}
+
+.pf-v5-c-button.pf-m-link {
+    color: #9ed0ff;
+}
+
+.pf-v5-c-alert {
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.pf-v5-c-alert.pf-m-danger {
+    background: rgba(160, 34, 34, 0.18);
+}
+
+.pf-v5-c-alert.pf-m-success {
+    background: rgba(26, 115, 92, 0.18);
+}
+
+.pf-v5-c-alert.pf-m-warning {
+    background: rgba(166, 94, 16, 0.18);
+}
+
+#kc-social-providers .pf-v5-c-button {
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+#kc-social-providers svg:not(.google) {
+    filter: invert(71%) sepia(32%) saturate(1436%) hue-rotate(177deg) brightness(102%) contrast(101%);
+}
+
+#kc-social-providers svg {
+    height: var(--pf-v5-global--FontSize--xl);
+}
+
+.kc-login-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.kc-login-tooltip .kc-tooltip-text {
+    top: -3px;
+    left: 160%;
+    min-width: 130px;
+    padding: 5px;
+    border-radius: 12px;
+    background-color: #081321;
+    color: #fff;
+    text-align: center;
+    visibility: hidden;
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.45);
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.kc-login-tooltip:hover .kc-tooltip-text {
+    visibility: visible;
+    opacity: 0.92;
+}
+
+.kc-login-tooltip .kc-tooltip-text::after {
+    content: " ";
+    position: absolute;
+    top: 15px;
+    right: 100%;
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent #081321 transparent transparent;
+}
+
+#kc-recovery-codes-list {
+    columns: 2;
+}
+
+#certificate_subjectDN {
+    overflow-wrap: break-word;
+}
+
+#kc-verify-email-form {
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+#kc-code pre code {
+    word-break: break-all;
+}
+
+hr {
+    margin-top: var(--pf-v5-global--spacer--sm);
+    margin-bottom: var(--pf-v5-global--spacer--md);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+@media (min-width: 768px) {
+    div.pf-v5-c-login__main-header {
+        grid-template-columns: 78% 22%;
+    }
+}
+
+@media (max-width: 640px) {
+    .pf-v5-c-login {
+        padding: 1rem;
+    }
+
+    .pf-v5-c-login__main-header,
+    .pf-v5-c-login__main-body,
+    .pf-v5-c-login__main-footer {
+        padding-inline: 1.25rem;
+    }
+
+    .teindi-brand-logo {
+        width: min(100%, 260px);
+    }
+
+    .teindi-brand-copy {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-height: 900px) {
+    .pf-v5-c-login {
+        align-items: flex-start;
+        padding-block: 1rem;
+    }
+
+    .pf-v5-c-login__container {
+        gap: 0.85rem;
+    }
+
+    #kc-header-wrapper {
+        gap: 0.5rem;
+        width: min(100%, 28rem);
+    }
+
+    .teindi-brand-logo {
+        width: min(100%, 250px);
+    }
+
+    .teindi-brand-copy {
+        font-size: 0.92rem;
+        line-height: 1.5;
+    }
+
+    .pf-v5-c-login__main-header {
+        padding: 1.5rem 1.5rem 0.75rem;
+    }
+
+    .pf-v5-c-login__main-body,
+    .pf-v5-c-login__main-footer {
+        padding-inline: 1.5rem;
+    }
+
+    .pf-v5-c-login__main-body {
+        padding-bottom: 1.5rem;
+    }
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 120" role="img" aria-label="Teindi">
+  <defs>
+    <linearGradient id="teindi-welcome-wordmark" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#7EC3FF" />
+      <stop offset="100%" stop-color="#4F8EF6" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(10 10)">
+    <path d="M18 66c0-15 11-28 27-31c4-15 19-27 37-27c10 0 18 3 24 8c8-14 24-23 42-23c22 0 40 14 47 34c17 1 30 15 30 33" fill="none" stroke="#FF7134" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"/>
+    <path d="M48 49l28-12l28 12v26c0 16-10 29-28 39c-18-10-28-23-28-39z" fill="#0D2138" stroke="#FF7134" stroke-linejoin="round" stroke-width="7"/>
+    <path d="M8 62h24M8 76h20M8 90h16" fill="none" stroke="#FF7134" stroke-linecap="round" stroke-width="8"/>
+    <text x="57" y="84" fill="url(#teindi-welcome-wordmark)" font-family="Segoe UI, Arial, sans-serif" font-size="54" font-weight="700">t</text>
+  </g>
+  <text x="150" y="82" fill="url(#teindi-welcome-wordmark)" font-family="Segoe UI, Arial, sans-serif" font-size="78" font-weight="700" letter-spacing="-3">teindi</text>
+</svg>

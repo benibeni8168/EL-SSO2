@@ -1,0 +1,5 @@
+org.keycloak.services.resources.admin.audit.AuditReportsProvider
+org.keycloak.services.resources.admin.siem.SiemResourceProvider
+org.keycloak.services.resources.admin.incident.IncidentResourceProvider
+org.keycloak.services.resources.admin.pam.PamResourceProvider
+org.keycloak.services.resources.admin.cloudapps.CloudAppsResourceProvider

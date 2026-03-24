@@ -1,0 +1,191 @@
+:root {
+  --teindi-blue: #5aa4ff;
+  --teindi-blue-strong: #4f8ef6;
+  --teindi-orange: #ff7134;
+  --teindi-line: rgba(11, 24, 40, 0.08);
+  --teindi-surface: rgba(255, 255, 255, 0.8);
+  --pf-v5-global--primary-color--100: var(--teindi-blue-strong);
+  --pf-v5-global--link--Color: var(--teindi-blue-strong);
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at top right, rgba(90, 164, 255, 0.16), transparent 22%),
+    radial-gradient(circle at bottom left, rgba(255, 113, 52, 0.14), transparent 28%),
+    linear-gradient(180deg, #f5f8fc 0%, #eaf0f7 100%);
+  color: #132133;
+}
+
+.pf-v5-c-page,
+.pf-v5-c-page__main,
+.pf-v5-c-page__main-section,
+.pf-v5-c-page__main-breadcrumb {
+  background: transparent;
+}
+
+.pf-v5-c-page__header {
+  background: linear-gradient(180deg, rgba(8, 19, 33, 0.96), rgba(12, 28, 45, 0.94));
+  border-bottom: 1px solid rgba(143, 201, 255, 0.08);
+  box-shadow: 0 24px 48px rgba(4, 10, 19, 0.28);
+  backdrop-filter: blur(18px);
+}
+
+.pf-v5-c-masthead {
+  min-height: 4.75rem;
+  padding-inline: clamp(0.75rem, 1.4vw, 1.25rem);
+}
+
+.pf-v5-c-masthead__main,
+.pf-v5-c-masthead__content,
+.pf-v5-c-page__main,
+.pf-v5-c-page__sidebar {
+  min-width: 0;
+}
+
+.pf-v5-c-masthead__brand {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: min(236px, 32vw);
+}
+
+.pf-v5-c-page__header .pf-v5-c-toolbar,
+.pf-v5-c-page__header .pf-v5-c-toolbar__content {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  padding: 0 !important;
+}
+
+.pf-v5-c-page__header .pf-v5-c-toolbar__content {
+  column-gap: 0.75rem;
+  row-gap: 0.5rem;
+}
+
+.pf-v5-c-page__header .pf-v5-c-toolbar__item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.pf-v5-c-page__header .pf-v5-c-menu-toggle,
+.pf-v5-c-page__header .pf-v5-c-dropdown__toggle {
+  min-height: 2.75rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #eef4fb;
+}
+
+.pf-v5-c-page__header .pf-v5-c-menu-toggle {
+  min-width: 8.5rem;
+}
+
+.pf-v5-c-page__header .pf-v5-c-menu-toggle__text,
+.pf-v5-c-page__header .pf-v5-c-dropdown__toggle-text {
+  max-width: 7.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pf-v5-c-page__header .pf-v5-c-button.pf-m-plain,
+.pf-v5-c-page__header .pf-v5-c-menu-toggle__button {
+  color: #deebf8;
+}
+
+.pf-v5-c-page__sidebar {
+  background: linear-gradient(180deg, #081321 0%, #102036 100%);
+  border-right: 1px solid rgba(143, 201, 255, 0.08);
+}
+
+.pf-v5-c-page__sidebar-body {
+  padding: 1rem 0;
+}
+
+.pf-v5-c-nav__link {
+  margin: 0.2rem 0.75rem;
+  border-radius: 16px;
+  color: #bdd0e6 !important;
+  transition: background-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.pf-v5-c-nav__link:hover,
+.pf-v5-c-nav__link.pf-m-current {
+  background: linear-gradient(135deg, rgba(90, 164, 255, 0.18), rgba(255, 113, 52, 0.16));
+  color: #fff !important;
+  transform: translateX(2px);
+}
+
+.pf-v5-c-page__main-section {
+  padding: 1.25rem 1.5rem 1.75rem;
+}
+
+.pf-v5-c-card,
+.pf-v5-c-empty-state,
+.pf-v5-c-toolbar,
+.pf-v5-c-dropdown__menu,
+.pf-v5-c-menu,
+.pf-v5-c-modal-box,
+.pf-v5-c-drawer__panel,
+.pf-v5-c-data-list {
+  border-radius: 22px;
+  border: 1px solid var(--teindi-line);
+  background: var(--teindi-surface);
+  box-shadow: 0 24px 60px rgba(12, 27, 44, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.pf-v5-c-button {
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.pf-v5-c-button.pf-m-primary {
+  border: none;
+  background: linear-gradient(135deg, var(--teindi-blue-strong), #73b8ff);
+  box-shadow: 0 16px 32px rgba(79, 142, 246, 0.26);
+}
+
+.pf-v5-c-button.pf-m-secondary {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(11, 24, 40, 0.1);
+}
+
+@media (max-width: 900px) {
+  .pf-v5-c-masthead {
+    padding-inline: 0.75rem;
+  }
+
+  .pf-v5-c-masthead__brand {
+    max-width: min(210px, 42vw);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  html,
+  body,
+  #app {
+    background:
+      radial-gradient(circle at top right, rgba(90, 164, 255, 0.18), transparent 20%),
+      radial-gradient(circle at bottom left, rgba(255, 113, 52, 0.16), transparent 24%),
+      linear-gradient(180deg, #0a1320 0%, #0f1b2d 100%);
+    color: #eef4fb;
+  }
+
+  .pf-v5-c-card,
+  .pf-v5-c-empty-state,
+  .pf-v5-c-toolbar,
+  .pf-v5-c-dropdown__menu,
+  .pf-v5-c-menu,
+  .pf-v5-c-modal-box,
+  .pf-v5-c-drawer__panel,
+  .pf-v5-c-data-list {
+    background: rgba(10, 22, 37, 0.84);
+    border-color: rgba(143, 201, 255, 0.12);
+    color: #eef4fb;
+  }
+}

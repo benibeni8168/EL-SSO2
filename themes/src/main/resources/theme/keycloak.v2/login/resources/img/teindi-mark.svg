@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Teindi">
+  <rect width="128" height="128" rx="28" fill="#081321" />
+  <g transform="translate(14 18)">
+    <path d="M14 54c0-12 9-22 21-24c3-12 15-21 29-21c8 0 14 2 19 6c7-11 19-18 34-18c18 0 32 11 37 28c13 1 23 11 23 24" fill="none" stroke="#FF7134" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+    <path d="M36 42l20-8l20 8v18c0 12-7 23-20 31c-13-8-20-19-20-31z" fill="#0F2138" stroke="#FF7134" stroke-linejoin="round" stroke-width="6"/>
+    <path d="M6 49h17M6 60h14M6 71h11" fill="none" stroke="#FF7134" stroke-linecap="round" stroke-width="6"/>
+    <text x="40" y="68" fill="#5AA4FF" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="700">t</text>
+  </g>
+</svg>

@@ -1,0 +1,10 @@
+{
+  "backupId" : "backup-20260323-142627-707",
+  "description" : null,
+  "createdAt" : 1774275987980,
+  "createdBy" : "admin",
+  "realms" : [ "teindi" ],
+  "sizeBytes" : 90271,
+  "status" : "COMPLETED",
+  "downloadUrl" : "/admin/backups/backup-20260323-142627-707/download"
+}

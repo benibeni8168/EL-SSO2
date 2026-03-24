@@ -1,0 +1,810 @@
+ ▐▛███▜▌   Claude Code v2.1.81
+▝▜█████▛▘  Sonnet 4.6 · Claude Pro
+  ▘▘ ▝▝    ~\Keycloak
+
+✻ Conversation compacted (ctrl+o for history)
+
+
+> /compact                                                                      
+  ⎿  Compacted (ctrl+o to see full summary)
+
+> /model                                                                        
+  ⎿  Set model to Sonnet 4.6 (default) with high effort
+
+> /plan                                                                         
+  ⎿  Enabled plan mode
+
+>  Bulk import of users shall be supported.so use the agent team to do this     
+task and firsty check whether our software doe support this task or not if not  
+so make it done                                                                 
+
+● I'll start by exploring the codebase to understand what bulk user import
+  support already exists before planning anything.
+
+● 2 Explore agents finished (ctrl+o to expand)
+   ├─ Explore existing bulk user import support · 5 tool uses · 20.6k tokens
+   │  ⎿  Done
+   └─ Explore admin UI user management patterns · 0 tool uses
+      ⎿  Done
+
+● Now I have a clear picture. Let me read a few more targeted files to finalize
+  the plan.
+
+  Read 2 files (ctrl+o to expand)
+
+● Now I have everything needed. Let me write the plan.
+
+  Read 1 file (ctrl+o to expand)
+
+● This is a completely different task from the previous disaster recovery plan.
+  I'll overwrite it with the new bulk user import plan.
+
+● Updated plan
+  ⎿  /plan to preview
+
+● User approved Claude's plan
+  ⎿  Plan saved to: ~\.claude\plans\toasty-petting-meteor.md · /plan to edit
+     Bulk User Import — Investigation & Implementation Plan
+
+     Context
+
+     The user wants Keycloak to support bulk importing of users (e.g., from a
+     CSV file or JSON array). This is useful when migrating users from another
+     system or setting up a new realm with many users at once.
+
+     ---
+     Finding: Partial Support Already Exists
+
+     Keycloak already has a Partial Import feature (POST 
+     /admin/realms/{realm}/partialImport) that can bulk-import users from a JSON
+      file in the Keycloak realm export format. A full UI for this lives in
+     Realm Settings → Partial Import.
+
+     What's missing for a good bulk user import experience
+
+     ┌──────────────┬───────────────────────────────────────────────────────────
+     ┐
+     │     Gap      │                          Problem
+     │
+     ├──────────────┼───────────────────────────────────────────────────────────
+     ┤
+     │ Location     │ Partial Import is in Realm Settings, not in the Users
+     │
+     │              │ section — not discoverable
+     │
+     ├──────────────┼───────────────────────────────────────────────────────────
+     ┤
+     │ Format       │ Only accepts Keycloak realm JSON format, not CSV (which
+     │
+     │              │ is what most people export from spreadsheets)
+     │
+     ├──────────────┼───────────────────────────────────────────────────────────
+     ┤
+     │ User-focused │ The Realm Settings import mixes users, clients, groups,
+     │
+     │              │ etc. — no dedicated "just users" flow
+     │
+     └──────────────┴───────────────────────────────────────────────────────────
+     ┘
+
+     ---
+     Existing Infrastructure to Reuse (No Backend Changes Needed)
+
+     ┌────────────────────────┬────────────────────────────────────────────────┐
+     │       Component        │                    Location                    │
+     ├────────────────────────┼────────────────────────────────────────────────┤
+     │ Bulk import endpoint   │ POST /admin/realms/{realm}/partialImport in    │
+     │                        │ RealmAdminResource.java                        │
+     ├────────────────────────┼────────────────────────────────────────────────┤
+     │ Admin client method    │ adminClient.realms.partialImport() already     │
+     │                        │ exists                                         │
+     ├────────────────────────┼────────────────────────────────────────────────┤
+     │ PartialImportRealmRepr │ @keycloak/keycloak-admin-client/lib/defs/realm │
+     │ esentation type        │ Representation                                 │
+     ├────────────────────────┼────────────────────────────────────────────────┤
+     │ File upload component  │ js/apps/admin-ui/src/components/json-file-uplo │
+     │                        │ ad/JsonFileUpload.tsx                          │
+     ├────────────────────────┼────────────────────────────────────────────────┤
+     │ Modal pattern          │ js/apps/admin-ui/src/backups/CreateBackupModal │
+     │ reference              │ .tsx                                           │
+     ├────────────────────────┼────────────────────────────────────────────────┤
+     │ Toolbar reference      │ js/apps/admin-ui/src/components/users/UserData │
+     │                        │ TableToolbarItems.tsx                          │
+     └────────────────────────┴────────────────────────────────────────────────┘
+
+     The PartialImportRealmRepresentation body format is:
+     {
+       "users": [ /* array of UserRepresentation */ ],
+       "ifResourceExists": "SKIP" | "OVERWRITE" | "FAIL"
+     }
+
+     ---
+     Implementation Plan: Bulk Import Users Modal
+
+     Frontend-only — No backend changes required
+
+     1. Create js/apps/admin-ui/src/user/BulkImportUsersModal.tsx (new file)
+
+     PatternFly Modal with:
+     - Format toggle: "CSV" / "JSON" (Radio buttons or Tabs)
+     - File upload area using existing FileUpload PatternFly component (drag &
+     drop + click)
+     - Collision policy dropdown: "Skip existing" (SKIP) / "Overwrite existing"
+     (OVERWRITE) / "Fail on conflict" (FAIL)
+     - Template download link: a small helper that generates a sample CSV for
+     the user to fill in
+     - Import button → on submit:
+       - For CSV: parse rows → build UserRepresentation[] → wrap as { users, 
+     ifResourceExists } → call adminClient.realms.partialImport()
+       - For JSON: parse JSON array of user objects → same wrapping → same call
+     - Results display: After successful call, show summary: "X added, Y
+     skipped, Z failed"
+     - Error handling: Show alert for parse errors and API errors
+
+     CSV format (first row = header):
+     username,email,firstName,lastName,enabled,emailVerified,password,temporary,
+     groups,realmRoles
+     john.doe,john@example.com,John,Doe,true,true,Password1!,true,/admins;/users
+     ,admin;viewer
+     - groups and realmRoles — multiple values separated by semicolons
+     - password — if provided, creates a CredentialRepresentation with
+     type=password
+     - temporary — sets credential.temporary (default: true if omitted)
+     - All fields except username are optional
+
+     2. Edit js/apps/admin-ui/src/components/users/UserDataTableToolbarItems.tsx
+
+     - Add prop toggleBulkImport: () => void
+     - Add an "Import users" button (ButtonVariant.secondary) next to the
+     existing "Add user" button, gated behind the same isManager check
+
+     3. Edit js/apps/admin-ui/src/components/users/UserDataTable.tsx
+
+     - Add const [bulkImportOpen, setBulkImportOpen] = useState(false);
+     - Pass toggleBulkImport={() => setBulkImportOpen(true)} to
+     UserDataTableToolbarItems
+     - Render <BulkImportUsersModal isOpen={bulkImportOpen} onClose={() => 
+     setBulkImportOpen(false)} refresh={refresh} />
+
+     4. Edit js/apps/admin-ui/maven-resources/theme/keycloak.v2/admin/messages/m
+     essages_en.properties
+
+     Add keys:
+     importUsers=Import users
+     importUsersModalTitle=Import Users
+     importUsersFormat=Import format
+     importUsersFormatCsv=CSV file
+     importUsersFormatJson=JSON file
+     importUsersIfExists=If user already exists
+     importUsersIfExistsSkip=Skip (keep existing)
+     importUsersIfExistsOverwrite=Overwrite (replace existing)
+     importUsersIfExistsFail=Fail on conflict
+     importUsersDownloadTemplate=Download CSV template
+     importUsersSuccess=Import completed: {{added}} added, {{skipped}} skipped,
+     {{failed}} failed
+     importUsersError=Import failed
+     importUsersParseError=Could not parse file. Check the format and try again.
+     importUsersDropHint=Drag and drop a file here, or click to select
+
+     ---
+     Critical Files
+
+     File: js/apps/admin-ui/src/user/BulkImportUsersModal.tsx
+     Action: Create — new modal
+     ────────────────────────────────────────
+     File: js/apps/admin-ui/src/components/users/UserDataTableToolbarItems.tsx
+     Action: Edit — add Import button + prop
+     ────────────────────────────────────────
+     File: js/apps/admin-ui/src/components/users/UserDataTable.tsx
+     Action: Edit — wire modal state
+     ────────────────────────────────────────
+     File: js/apps/admin-ui/maven-resources/theme/keycloak.v2/admin/messages/mes
+     sages_en.properties
+     Action: Edit — add i18n keys
+
+     ---
+     Verification
+
+     # 1. Build frontend
+     cd js && pnpm --filter @keycloak/keycloak-admin-ui build
+
+     # 2. Start dev server
+     export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot"
+     cd quarkus && ../mvnw -f server/pom.xml compile quarkus:dev \
+       -Dkc.config.built=true -Dkc.home.dir=../.kc \
+       "-Dquarkus.args=start-dev --bootstrap-admin-username=admin 
+     --bootstrap-admin-password=admin"
+
+     # 3. Manual end-to-end test:
+     #    a. Go to Admin Console → Users
+     #    b. Click "Import users" button
+     #    c. Upload a CSV with 2-3 test users
+     #    d. Choose "Skip existing" policy
+     #    e. Click Import → verify success toast with counts
+     #    f. Verify users appear in the user list
+     #    g. Test JSON format as well
+     #    h. Test collision policy: import same CSV again → should show X 
+     skipped
+
+● Plan approved. I'll delegate implementation to the Developer agent with full
+  context.
+
+● Agent(Implement bulk user import feature)
+  ⎿  Done (36 tool uses · 49.9k tokens · 7m 18s)
+  (ctrl+o to expand)
+
+● Implementation done. Let me run the Reviewer agent to verify quality.
+
+● Agent(Review bulk user import implementation)
+  ⎿  Done (44 tool uses · 51.0k tokens · 3m 9s)
+  (ctrl+o to expand)
+
+● The bulk user import feature is fully implemented and verified. Here's what
+  was done:
+
+  ---
+  What was built
+
+  Keycloak already had a POST /admin/realms/{realm}/partialImport backend
+  endpoint — so no backend changes were needed. The gap was only in the UI: the
+  import was buried in Realm Settings and only accepted Keycloak's internal JSON
+   format.
+
+  New: "Import users" button in the Users toolbar
+
+  Goes to Admin Console → Users — you'll see a new "Import users" button next to
+   "Add user".
+
+  New modal supports:
+
+  - CSV upload — upload a spreadsheet-style file:
+  username,email,firstName,lastName,enabled,emailVerified,password,temporary,gro
+  ups,realmRoles
+  john.doe,john@example.com,John,Doe,true,true,Password1!,true,/admins;/users,ad
+  min;viewer
+  - JSON upload — array of user objects
+  - Collision policy: Skip existing / Overwrite existing / Fail on conflict
+  - Download CSV template link for reference
+  - Results summary: "X added, Y skipped, Z overwritten"
+
+  Files changed
+
+  File: js/apps/admin-ui/src/user/BulkImportUsersModal.tsx
+  Change: Created — new modal
+  ────────────────────────────────────────
+  File: js/apps/admin-ui/src/components/users/UserDataTableToolbarItems.tsx
+  Change: Added "Import users" button
+  ────────────────────────────────────────
+  File: js/apps/admin-ui/src/components/users/UserDataTable.tsx
+  Change: Wired modal state + render
+  ────────────────────────────────────────
+  File: messages_en.properties
+  Change: Added 13 new i18n keys
+
+  Server is running at http://localhost:8080/admin (admin/admin) and all health
+  checks pass.
+
+✻ Cogitated for 11m 57s
+
+● Background command "Start Keycloak dev server" failed with exit code 1
+
+  Read 1 file (ctrl+o to expand)
+● The task output is empty. Let me check the current server status directly.
+
+● Bash(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/ 2>/dev/null
+       && echo " - server up" || echo " - server down")
+  ⎿  302 - server up
+
+● Bash(tasklist 2>/dev/null | grep -i java)
+  ⎿  java.exe                     16704 Console                    1    732
+     ,860 K
+     java.exe                     18248 Console                    1    914
+     ,048 K
+
+● The server is running fine (HTTP 302). The background task failure was likely
+  a stale/orphaned task notification from a previous agent session — the server
+  is healthy with two Java processes running and responding correctly.
+
+> /export                                                                       
+  ⎿  Conversation exported to: C:\Users\user\Keycloak\2026-03-22-015325-command-
+     messageinitcommand-message.txt
+
+> The identity platform shall integrate with Privileged Access Management       
+systems. So this is our new task. Use the agent teams and finding in the        
+software that our software does hold this task or not. If not, so make this     
+task done.                                                                      
+
+● I'll investigate what's already in the software before planning anything.
+  Launching parallel exploration agents.
+  ⎿  Interrupted · What should Claude do instead?
+
+> /plan                                                                         
+  ⎿  Enabled plan mode
+
+> The identity platform shall integrate with Privileged Access Management       
+systems. So this is our new task. Use the agent teams and finding in the        
+software that our software does hold this task or not. If not, so make this     
+task done.                                                                      
+
+● This is a new task. Let me explore in parallel to understand what PAM support
+  already exists.
+
+● 2 Explore agents finished (ctrl+o to expand)
+   ├─ Explore existing PAM integration code · 6 tool uses · 25.8k tokens
+   │  ⎿  Done
+   └─ Explore admin UI for PAM-related sections · 0 tool uses
+      ⎿  Done
+
+● Good findings. Before finalizing the plan, I need to clarify one key thing.
+
+● User answered Claude's questions:
+  ⎿  · What type of PAM integration do you want? → Generic webhook (Recommended)
+     · What should the PAM integration actually do? → Step-up auth gate, Session
+      notification, Config UI only
+
+● Now I have clear requirements. Let me write the plan.
+
+● Updated plan
+  ⎿  /plan to preview
+
+● User approved Claude's plan
+  ⎿  Plan saved to: ~\.claude\plans\toasty-petting-meteor.md · /plan to edit
+     PAM Integration — Implementation Plan
+
+     Context
+
+     The Teindi identity platform needs to integrate with Privileged Access
+     Management (PAM) systems. No PAM support exists today. The integration must
+      be vendor-agnostic (generic HTTP webhook, compatible with CyberArk,
+     BeyondTrust, HashiCorp Vault, or any custom PAM API).
+
+     Three behaviours are required:
+     1. Step-up auth gate — when a user logs in to a "privileged" client,
+     Keycloak calls the PAM webhook for approval before completing the login
+     2. Session notification — when a privileged session is created or ended,
+     Keycloak notifies the PAM system
+     3. Config UI — admin settings page (Realm Settings → PAM tab) for full
+     end-to-end configuration
+
+     ---
+     Architecture
+
+     Login to privileged client
+             │
+             ▼
+     PAM Check Authenticator ──POST /check──► PAM Webhook (CyberArk / Vault /
+     custom)
+             │                                        │
+        allowed?──NO──► Deny login                   │
+             │──YES──► Complete login                 │
+                             │                        │
+                    Session Created ──POST /session──► PAM Webhook (session
+     notification)
+
+     ---
+     PAM Webhook API Contract (vendor-neutral)
+
+     Check endpoint (POST {url}/check):
+     Request:  { "userId", "username", "clientId", "realmId", "ipAddress",
+     "timestamp" }
+     Response: { "allowed": true, "reason": "...", "pamSessionRef": "..." }
+     Session endpoint (POST {url}/session):
+     Request:  { "event": "SESSION_CREATED"|"SESSION_ENDED", "sessionId",
+     "userId", "username", "clientId", "realmId", "ipAddress", "timestamp" }
+     Test endpoint (POST {url}/test): { "test": true } → 200 OK
+
+     Auth: Authorization: {apiToken} header on all requests.
+
+     ---
+     Existing Infrastructure to Reuse
+
+     Component: SiemResource.java pattern
+     Location: services/.../admin/siem/SiemResource.java
+     Used for: PAM admin REST resource
+     ────────────────────────────────────────
+     Component: SiemConfigStore.java pattern
+     Location: services/.../log/SiemConfigStore.java
+     Used for: PAM config persistence in realm attributes
+     ────────────────────────────────────────
+     Component: LogExportEventListenerProvider pattern
+     Location: services/.../log/LogExportEventListenerProvider.java
+     Used for: PAM session event listener
+     ────────────────────────────────────────
+     Component: ConditionalRiskAuthenticator pattern
+     Location: services/.../conditional/ConditionalRiskAuthenticator.java
+     Used for: PAM check authenticator
+     ────────────────────────────────────────
+     Component: SiemForwardingForm.tsx pattern
+     Location:
+     js/apps/admin-ui/src/realm-settings/event-config/SiemForwardingForm.tsx
+     Used for: PAM settings form
+     ────────────────────────────────────────
+     Component: siem-api.ts pattern
+     Location: js/apps/admin-ui/src/realm-settings/event-config/siem-api.ts
+     Used for: PAM API helper
+     ────────────────────────────────────────
+     Component: AdminRealmResourceProviderFactory
+     Location: services/.../admin/siem/SiemResourceProvider.java
+     Used for: PAM REST registration
+
+     ---
+     Backend Implementation
+
+     1. PAM SPI (server-spi-private/src/main/java/org/keycloak/pam/)
+
+     New files:
+     - PamProvider.java — interface with:
+       - PamCheckResult checkAccess(String userId, String username, String 
+     clientId, String realmId, String ipAddress)
+       - void notifySession(String event, String sessionId, String userId, 
+     String username, String clientId, String realmId, String ipAddress)
+     - PamProviderFactory.java — extends ProviderFactory<PamProvider>
+     - PamSpi.java — extends Spi (registers PamProvider class,
+     PamProviderFactory class, name "pam")
+     - PamCheckResult.java — POJO: { boolean allowed; String reason; String 
+     pamSessionRef; }
+
+     Register in server-spi-private/src/main/resources/META-INF/services/org.key
+     cloak.provider.Spi
+
+     2. Generic Webhook PAM Provider (services/src/main/java/org/keycloak/pam/)
+
+     New files:
+     - WebhookPamProvider.java — implements PamProvider:
+       - On checkAccess(): POST JSON to {webhookUrl}/check with 5s timeout;
+     parse { allowed, reason, pamSessionRef }
+       - On notifySession(): POST JSON to {webhookUrl}/session (fire-and-forget
+     async)
+       - Uses java.net.http.HttpClient (same as LogExportEventListenerProvider)
+     - WebhookPamProviderFactory.java — implements PamProviderFactory:
+       - PROVIDER_ID = "webhook"
+       - Reads config: webhookUrl, apiToken, privilegedClients
+     (comma-separated), allClientsPrivileged, notifySessions,
+     checkTimeoutSeconds
+       - create(session) reads live config from realm attributes via
+     PamConfigStore
+
+     3. PAM Check Authenticator 
+     (services/src/main/java/org/keycloak/authentication/authenticators/pam/)
+
+     New files:
+     - PamCheckAuthenticator.java — implements Authenticator:
+       - authenticate(context):
+           i. Get PamProvider from session
+         ii. Check if current client is in the privileged list (or
+     allClientsPrivileged)
+         iii. If yes: call pamProvider.checkAccess(...)
+         iv. If allowed=true: context.success()
+         v. If allowed=false:
+     context.failure(AuthenticationFlowError.ACCESS_DENIED) with error message
+     from reason
+         vi. If PAM is disabled or client is not privileged: context.success()
+     - PamCheckAuthenticatorFactory.java — implements AuthenticatorFactory:
+       - PROVIDER_ID = "pam-check"
+       - Display name: "PAM Access Check"
+       - Config properties: none (reads from realm-level PAM config)
+
+     Register in services/src/main/resources/META-INF/services/org.keycloak.auth
+     entication.AuthenticatorFactory
+
+     4. PAM Session Event Listener 
+     (services/src/main/java/org/keycloak/events/pam/)
+
+     New files:
+     - PamSessionEventListenerProvider.java — implements EventListenerProvider:
+       - onEvent(Event event): If event type is LOGIN or LOGOUT, and PAM is
+     enabled + notifySessions=true, call pamProvider.notifySession(...) (async,
+     non-blocking)
+       - onEvent(AdminEvent, boolean): no-op
+     - PamSessionEventListenerProviderFactory.java — PROVIDER_ID = 
+     "pam-session-notify"
+
+     Register in services/src/main/resources/META-INF/services/org.keycloak.even
+     ts.EventListenerProviderFactory
+
+     5. PAM Config Store (services/src/main/java/org/keycloak/events/pam/)
+
+     New files:
+     - PamConfigRepresentation.java — fields: enabled, webhookUrl, apiToken,
+     privilegedClients (List), allClientsPrivileged, notifySessions,
+     checkTimeoutSeconds
+     - PamConfigStore.java — persists PamConfigRepresentation as JSON in realm
+     attributes (key "pam.config"), same pattern as SiemConfigStore
+     - PamTestResultRepresentation.java — { sent: boolean, status: String, 
+     message: String }
+
+     6. PAM Admin REST Resource 
+     (services/src/main/java/org/keycloak/services/resources/admin/pam/)
+
+     New files:
+     - PamResource.java — JAX-RS resource:
+       - GET / → return PamConfigRepresentation (requires view-events)
+       - PUT / → save config, sync event listeners (requires manage-events)
+       - POST /test → send test request to PAM webhook, return
+     PamTestResultRepresentation (requires manage-events)
+     - PamResourceProvider.java — implements AdminRealmResourceProvider and
+     AdminRealmResourceProviderFactory, PROVIDER_ID = "pam"
+
+     Register in services/src/main/resources/META-INF/services/org.keycloak.serv
+     ices.resources.admin.ext.AdminRealmResourceProviderFactory
+
+     ---
+     Frontend Implementation
+
+     1. Create js/apps/admin-ui/src/realm-settings/pam/ directory
+
+     New files:
+     - PamSettingsForm.tsx — settings form (mirroring SiemForwardingForm.tsx):
+       - Enable/disable switch
+       - Webhook URL text input
+       - API Token password input (masked)
+       - "All clients are privileged" checkbox
+       - Privileged clients multi-select (only shown if not allClients)
+       - Notify sessions on login/logout switch
+       - Timeout number input (seconds)
+       - Test Connection button → POST /admin/realms/{realm}/pam/test
+       - Save button
+     - pam-api.ts — typed API helpers:
+       - getPamConfig(adminClient, realm) → GET /admin/realms/{realm}/pam
+       - putPamConfig(adminClient, realm, config) → PUT
+       - postPamTest(adminClient, realm) → POST /admin/realms/{realm}/pam/test
+
+     2. Edit js/apps/admin-ui/src/realm-settings/RealmSettingsTabs.tsx
+
+     Add a new "PAM" tab following the exact same pattern as the existing
+     "Events" tab:
+     - Import PamSettingsForm
+     - Add useTab("pam") hook
+     - Add <Tab eventKey="pam" title={<TabTitleText>{t("pam")}</TabTitleText>} 
+     ...>
+     - Render <PamSettingsForm /> inside
+
+     3. Edit js/apps/admin-ui/maven-resources/theme/keycloak.v2/admin/messages/m
+     essages_en.properties
+
+     Add i18n keys:
+     pam=PAM
+     pamTitle=Privileged Access Management
+     pamEnabled=Enable PAM integration
+     pamWebhookUrl=Webhook URL
+     pamWebhookUrlHelp=URL of the PAM system webhook endpoint (e.g.
+     https://pam.example.com/keycloak)
+     pamApiToken=API Token
+     pamApiTokenHelp=Authorization token sent in the Authorization header
+     pamPrivilegedClients=Privileged clients
+     pamPrivilegedClientsHelp=Clients that require PAM approval before login
+     pamAllClientsPrivileged=All clients are privileged
+     pamNotifySessions=Notify on session events
+     pamNotifySessionsHelp=Send session start and end notifications to the PAM
+     system
+     pamCheckTimeout=Request timeout (seconds)
+     pamTestConnection=Test connection
+     pamSaveSuccess=PAM configuration saved
+     pamSaveError=Failed to save PAM configuration
+     pamTestSuccess=PAM test request sent successfully
+     pamTestError=PAM test request failed
+
+     ---
+     Critical Files Summary
+
+     File: server-spi-private/src/main/java/org/keycloak/pam/PamProvider.java
+     Action: Create
+     ────────────────────────────────────────
+     File:
+     server-spi-private/src/main/java/org/keycloak/pam/PamProviderFactory.java
+     Action: Create
+     ────────────────────────────────────────
+     File: server-spi-private/src/main/java/org/keycloak/pam/PamSpi.java
+     Action: Create
+     ────────────────────────────────────────
+     File: server-spi-private/src/main/java/org/keycloak/pam/PamCheckResult.java
+     Action: Create
+     ────────────────────────────────────────
+     File: server-spi-private/src/main/resources/META-INF/services/org.keycloak.
+     provider.Spi
+     Action: Edit (add PamSpi)
+     ────────────────────────────────────────
+     File: services/src/main/java/org/keycloak/pam/WebhookPamProvider.java
+     Action: Create
+     ────────────────────────────────────────
+     File:
+     services/src/main/java/org/keycloak/pam/WebhookPamProviderFactory.java
+     Action: Create
+     ────────────────────────────────────────
+     File: services/src/main/java/org/keycloak/authentication/authenticators/pam
+     /PamCheckAuthenticator.java
+     Action: Create
+     ────────────────────────────────────────
+     File: services/src/main/java/org/keycloak/authentication/authenticators/pam
+     /PamCheckAuthenticatorFactory.java
+     Action: Create
+     ────────────────────────────────────────
+     File: services/src/main/java/org/keycloak/events/pam/PamSessionEventListene
+     rProvider.java
+     Action: Create
+     ────────────────────────────────────────
+     File: services/src/main/java/org/keycloak/events/pam/PamSessionEventListene
+     rProviderFactory.java
+     Action: Create
+     ────────────────────────────────────────
+     File:
+     services/src/main/java/org/keycloak/events/pam/PamConfigRepresentation.java
+     Action: Create
+     ────────────────────────────────────────
+     File: services/src/main/java/org/keycloak/events/pam/PamConfigStore.java
+     Action: Create
+     ────────────────────────────────────────
+     File: services/src/main/java/org/keycloak/events/pam/PamTestResultRepresent
+     ation.java
+     Action: Create
+     ────────────────────────────────────────
+     File: services/src/main/java/org/keycloak/services/resources/admin/pam/PamR
+     esource.java
+     Action: Create
+     ────────────────────────────────────────
+     File: services/src/main/java/org/keycloak/services/resources/admin/pam/PamR
+     esourceProvider.java
+     Action: Create
+     ────────────────────────────────────────
+     File: services/src/main/resources/META-INF/services/org.keycloak.authentica
+     tion.AuthenticatorFactory
+     Action: Edit
+     ────────────────────────────────────────
+     File: services/src/main/resources/META-INF/services/org.keycloak.events.Eve
+     ntListenerProviderFactory
+     Action: Edit
+     ────────────────────────────────────────
+     File: services/src/main/resources/META-INF/services/org.keycloak.services.r
+     esources.admin.ext.AdminRealmResourceProviderFactory
+     Action: Edit
+     ────────────────────────────────────────
+     File: js/apps/admin-ui/src/realm-settings/pam/PamSettingsForm.tsx
+     Action: Create
+     ────────────────────────────────────────
+     File: js/apps/admin-ui/src/realm-settings/pam/pam-api.ts
+     Action: Create
+     ────────────────────────────────────────
+     File: js/apps/admin-ui/src/realm-settings/RealmSettingsTabs.tsx
+     Action: Edit
+     ────────────────────────────────────────
+     File: messages_en.properties
+     Action: Edit
+
+     ---
+     Build & Verification
+
+     # 1. Set JAVA_HOME
+     export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot"
+     export PATH="$JAVA_HOME/bin:$PATH"
+
+     # 2. Kill running server
+     tasklist 2>/dev/null | grep java.exe | awk '{print $2}' | while read pid;
+     do taskkill //F //PID $pid 2>/dev/null; done
+
+     # 3. Rebuild server-spi-private (new SPI interfaces) + services 
+     (implementations)
+     ./mvnw -f server-spi-private/pom.xml clean install -DskipTests
+     ./mvnw -f services/pom.xml clean install -DskipTests
+
+     # 4. Build frontend
+     cd js && pnpm --filter @keycloak/keycloak-admin-ui build
+
+     # 5. Start server
+     cd quarkus && ../mvnw -f server/pom.xml compile quarkus:dev \
+       -Dkc.config.built=true -Dkc.home.dir=../.kc \
+       "-Dquarkus.args=start-dev --bootstrap-admin-username=admin 
+     --bootstrap-admin-password=admin"
+
+     # 6. Health checks
+     sleep 45
+     curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/          # → 
+     302
+     curl -s http://localhost:8080/realms/master/protocol/openid-connect/token \
+       -d "client_id=admin-cli" -d "username=admin" -d "password=admin" -d
+     "grant_type=password" | head -c 50
+     # → {"access_token":"eyJ...
+
+     # 7. Manual end-to-end test:
+     #    a. Go to Realm Settings → PAM tab
+     #    b. Enable PAM, enter a test webhook URL, add "admin-cli" as a 
+     privileged client
+     #    c. Click "Test connection" → should call webhook and show result
+     #    d. Save config
+     #    e. Add "pam-check" authenticator to the browser auth flow
+     #    f. Attempt login to admin-cli → PAM webhook should be called
+
+● Plan approved. Delegating the full implementation to the Developer agent.
+
+● Agent(Implement full PAM integration feature)
+  ⎿  Done (68 tool uses · 85.5k tokens · 11m 30s)
+  (ctrl+o to expand)
+
+● Implementation complete. Running the Reviewer agent to verify quality.
+
+● Agent(Review PAM integration implementation)  ⎿  Done (73 tool uses · 71.5k tokens · 8m 4s)
+  (ctrl+o to expand)
+
+● The PAM integration is fully implemented, reviewed, and verified. Here's the
+  summary:
+
+  ---
+  PAM Integration — Complete
+
+  No PAM support existed before. The full feature is now built.
+
+  What was built
+
+  Vendor-agnostic HTTP webhook — works with CyberArk, BeyondTrust, HashiCorp
+  Vault, or any custom PAM system.
+
+  Backend (Java)
+
+  - PAM SPI (server-spi-private) — PamProvider interface, factory, SPI
+  registration
+  - Webhook provider (services) — calls configurable PAM URL with JSON payloads,
+   synchronous access checks with timeout, async fire-and-forget session
+  notifications
+  - PAM Check Authenticator — auth flow step that calls PAM before allowing
+  login to privileged clients
+  - Session Event Listener — notifies PAM on LOGIN and LOGOUT events
+  - Admin REST API — GET/PUT /admin/realms/{realm}/pam for config, POST /test
+  for connection testing
+
+  Frontend (React)
+
+  - Realm Settings → PAM tab — enable/disable, webhook URL, API token (masked),
+  privileged client list, session notifications, timeout, test connection button
+
+  Review fixes applied
+
+  - Authorization: Bearer {token} header (was sending raw token)
+  - Session listener changed from global to per-realm (so the UI enable/disable
+  actually works)
+  - PAM denial reason no longer exposed to end users (shows standard "Access
+  denied" page)
+  - Corrupt PAM config now logs a warning instead of silently failing open
+  - Test button disabled when form has unsaved changes
+
+  Server running at http://localhost:8080/admin (admin/admin) — all health
+  checks pass.
+
+  How to use
+
+  1. Go to Realm Settings → PAM tab
+  2. Enable PAM, enter your PAM webhook URL and API token
+  3. Add client IDs to the privileged clients list (or enable "All clients are
+  privileged")
+  4. Add the "PAM Access Check" authenticator step to your browser auth flow
+  5. Users logging in to those clients will now be checked against your PAM
+  system
+
+✻ Churned for 24m 27s
+
+● Background command "find /c/Users/user/Keycloak -type f \( -name "*.tsx" -o
+-name "*.ts" -o -name "*.java" \) -exec grep -l "pam\|privileged\|vault" {} \;
+2&gt;/dev/null | grep -E "(admin-ui|services)" | head -20" was stopped
+
+● Background command "export JAVA_HOME="/c/Program Files/Eclipse
+Adoptium/jdk-25.0.2.10-hotspot" &amp;&amp; export PATH="$JAVA_HOME/bin:$PATH"
+&amp;&amp; cd /c/Users/user/Keycloak/quarkus &amp;&amp; ../mvnw -f
+server/pom.xml compile quarkus:dev -Dkc.config.built=true -Dkc.home.dir=../.kc
+"-Dquarkus.args=start-dev --bootstrap-admin-username=admin
+--bootstrap-admin-password=admin" &gt; /tmp/kc-server.log 2&gt;&amp;1 &amp;
+echo "Server starting in background (PID: $!)"" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/ 2>/dev/null
+       && echo " OK" || echo " DOWN")
+  ⎿  302 OK
+
+● Both background tasks were from the Reviewer agent's work — one was a file
+  search (killed, not needed) and the other was the server restart after review
+  fixes. The server is up and healthy (302). Everything is running at
+  http://localhost:8080/admin (admin/admin).
+
+> /usage                                                                        
+  ⎿  Status dialog dismissed
+
+> /exit                                                                         
+  ⎿  Goodbye!

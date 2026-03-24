@@ -1,0 +1,77 @@
+.pf-v5-c-background-image {
+  --pf-v5-c-background-image--BackgroundSize: cover;
+}
+
+.pf-v5-c-login__container {
+  grid-template-areas: "header" "main";
+  --pf-v5-c-login__container--xl--GridTemplateColumns: minmax(auto, 40rem);
+  max-width: 44rem;
+}
+
+.pf-v5-c-login__header {
+  position: relative;
+  z-index: 1;
+}
+
+.pf-v5-c-login__main {
+  border-radius: 28px;
+  border: 1px solid rgba(143, 201, 255, 0.14);
+  background: linear-gradient(180deg, rgba(16, 32, 52, 0.92), rgba(8, 18, 29, 0.94));
+  box-shadow: 0 32px 80px rgba(2, 8, 17, 0.42);
+  backdrop-filter: blur(18px);
+}
+
+.pf-v5-c-login__main::before {
+  content: "";
+  display: block;
+  height: 4px;
+  background: linear-gradient(90deg, #ff7134, #5aa4ff);
+}
+
+.pf-v5-c-login__main-header {
+  padding: 2rem 2rem 1rem;
+}
+
+.pf-v5-c-login__main-header-desc,
+.pf-v5-c-form__label-text {
+  color: #9cafc7;
+}
+
+.pf-v5-c-login__main-body {
+  padding: 0 2rem 2rem;
+}
+
+.pf-v5-c-button.pf-m-primary {
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #4f8ef6, #73b8ff);
+  color: #06111b;
+  font-weight: 700;
+  box-shadow: 0 16px 32px rgba(79, 142, 246, 0.35);
+}
+
+.pf-v5-c-form-control {
+  min-height: 3.15rem;
+  border-radius: 16px;
+  border-color: rgba(143, 201, 255, 0.15);
+  background: rgba(7, 18, 30, 0.62);
+  color: #fff;
+}
+
+.kc-brand {
+  width: min(100%, 320px);
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .pf-v5-c-login__main-header,
+  .pf-v5-c-login__main-body {
+    padding-inline: 1.25rem;
+  }
+
+  .kc-brand {
+    width: min(100%, 280px);
+  }
+}
