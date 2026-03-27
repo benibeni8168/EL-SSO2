@@ -42,6 +42,7 @@ import org.keycloak.events.admin.ResourceType;
 import org.keycloak.models.AdminRoles;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.LimitExceededException;
 import org.keycloak.models.ModelDuplicateException;
 import org.keycloak.models.ModelException;
 import org.keycloak.models.ModelIllegalStateException;
@@ -184,6 +185,8 @@ public class RealmsAdminResource {
         } catch (ModelDuplicateException mde) {
             logger.error("Conflict detected", mde);
             throw ErrorResponse.exists(mde.getMessage());
+        } catch (LimitExceededException e) {
+            throw ErrorResponse.error(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (ModelException e) {
             throw ErrorResponse.error(e.getMessage(), Response.Status.BAD_REQUEST);
         }

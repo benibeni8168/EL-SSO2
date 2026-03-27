@@ -50,6 +50,7 @@ import org.keycloak.events.admin.ResourceType;
 import org.keycloak.models.Constants;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.LimitExceededException;
 import org.keycloak.models.ModelDuplicateException;
 import org.keycloak.models.ModelException;
 import org.keycloak.models.ModelIllegalStateException;
@@ -185,6 +186,8 @@ public class UsersResource {
         } catch (ModelIllegalStateException e) {
             logger.error(e.getMessage(), e);
             throw ErrorResponse.error(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+        } catch (LimitExceededException e) {
+            throw ErrorResponse.error(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (ModelException me){
             logger.warn("Could not create user", me);
             throw ErrorResponse.error("Could not create user", Response.Status.BAD_REQUEST);

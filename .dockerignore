@@ -1,0 +1,11 @@
+# Exclude everything from the Docker build context.
+# The ! lines below re-include only the path to the distribution archive.
+# Without this, Docker would send the entire repository (several GB) as context.
+**
+
+# Re-include only the distribution archive and its parent directories.
+# Each directory level must be un-ignored for Docker to traverse to the file.
+!quarkus/
+!quarkus/dist/
+!quarkus/dist/target/
+!quarkus/dist/target/keycloak-*.tar.gz

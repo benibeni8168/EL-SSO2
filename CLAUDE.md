@@ -204,6 +204,17 @@ pnpm --filter @keycloak/keycloak-admin-ui test
 **Apps:** `js/apps/admin-ui` (Admin Console, React + PatternFly), `js/apps/account-ui` (Account Console, React)
 **Libs:** `js/libs/keycloak-admin-client` (Admin REST API client), `js/libs/ui-shared` (shared UI components)
 
+### Admin Client OpenAPI Generation
+
+The admin client TypeScript types are generated from `js/libs/keycloak-admin-client/openapi.yaml`. After changing Admin REST API endpoints, update the OpenAPI spec and regenerate:
+
+```bash
+cd js
+pnpm --filter @keycloak/keycloak-admin-client generate:openapi
+```
+
+This runs automatically on `pnpm install` via the `postinstall` hook.
+
 ### Frontend Dev Mode with Proxy
 
 The `js/apps/keycloak-server` package downloads and runs a Keycloak server that proxies the UI to a local Vite dev server — no Java build required for frontend work:
@@ -266,6 +277,63 @@ Login/account page templates are FreeMarker (`.ftl`) files in `themes/src/main/r
 
 Live theme editing: start the test server with `-Dresources` to load templates from the filesystem without rebuilding.
 
+## Custom Enterprise Features (Fork Additions)
+
+This fork adds enterprise security features on top of upstream Keycloak. These are **not** part of the upstream project.
+
+### Custom Admin REST Extension Pattern
+
+All custom realm-scoped REST resources follow the `AdminRealmResourceProvider` SPI:
+- Implement both `AdminRealmResourceProviderFactory` and `AdminRealmResourceProvider`
+- `getResource()` returns a JAX-RS sub-resource object
+- Register the factory in `services/src/main/resources/META-INF/services/org.keycloak.services.resources.admin.ext.AdminRealmResourceProviderFactory`
+- Requests to `/admin/realms/{realm}/{PROVIDER_ID}` are automatically routed via `RealmAdminResource.extension()` (~line 650 in `services`)
+
+### Custom Features
+
+**Cloud Apps** (`PROVIDER_ID=cloud-apps`) — `services/.../admin/cloudapps/`
+- M2M service-account client registration with hardened secure defaults
+- API: `GET/POST /admin/realms/{realm}/cloud-apps`
+- Uses built-in `cloud-application` client profile in `services/src/main/resources/keycloak-default-client-profiles.json`
+- Admin UI: `js/apps/admin-ui/src/realm-settings/CloudAppsTab.tsx` (tab registered in `RealmSettingsTabs.tsx`)
+
+**Backup & Restore** — `services/.../admin/backup/`
+- Export/import realm configurations as ZIP files (users, clients, roles)
+- API: `POST/GET /admin/backups`, `GET /admin/backups/{id}/download`, `POST /admin/backups/{id}/restore`, `DELETE /admin/backups/{id}`
+- Storage path configurable via `keycloak.backup.dir` system property
+- Note: mounted directly on `AdminRoot`, not via the realm extension SPI
+
+**Incident Webhooks** (`PROVIDER_ID=incident`) — `services/.../admin/incident/`
+- Security event webhook notifications to external incident management systems
+- API: `GET/PUT /admin/realms/{realm}/incident`, `POST .../incident/test`
+- Event listener: `IncidentEventListenerProviderFactory` (dynamically enabled/disabled per realm config)
+
+**PAM Integration** (`PROVIDER_ID=pam`) — `services/.../admin/pam/`
+- Session event notifications to Privileged Access Management systems
+- API: `GET/PUT /admin/realms/{realm}/pam`, `POST .../pam/test`
+- Event listener: `PamSessionEventListenerProviderFactory`
+
+**SIEM Forwarding** (`PROVIDER_ID=siem`) — `services/.../admin/siem/`
+- Log export to SIEM systems; supports global defaults (master realm) overridden per realm
+- API: `GET/PUT /admin/realms/{realm}/siem`, `POST .../siem/test`; global: `GET/PUT /admin/realms/master/siem/global`
+- Event listener: `LogExportEventListenerProviderFactory`; signing secrets are masked (`***`) in API responses
+
+**Audit Reports** (`PROVIDER_ID=audit-reports`) — `services/.../admin/audit/`
+- Compliance reporting: authentication events, admin activity, security events, per-user activity (GDPR)
+- API: `GET /admin/realms/{realm}/audit-reports/{authentication|admin-activity|security|user-activity}`; supports CSV export
+
+**Event Integrity** (`PROVIDER_ID=event-integrity`) — `services/.../admin/integrity/`
+- SHA-256 hash stored alongside each event for tamper detection
+- API: `GET /admin/realms/{realm}/event-integrity` (runs verification scan)
+- DB migration: `INTEGRITY_HASH` columns added in `model/jpa/src/main/resources/META-INF/jpa-changelog-27.0.0.xml`
+- Key classes: `model/jpa/.../EventIntegrityUtil.java`, `JpaEventStoreProvider.verifyIntegrity()`
+- Admin UI: `js/apps/admin-ui/src/realm-settings/event-config/EventsTab.tsx`
+
+**Limit Enforcement** — `server-spi/.../models/LimitExceededException.java`, `model/jpa/.../JpaUserProvider.java`, `services/.../managers/RealmManager.java`
+- Hard caps enforced at the model layer: max 1 non-master realm (`MAX_NON_MASTER_REALMS`), max 20 regular users per realm (`MAX_USERS_PER_REALM`)
+- Service accounts (prefix `service-account-`) are excluded from the user count
+- `LimitExceededException` (extends `ModelException`) is thrown at creation time; caught by `RealmsAdminResource` and `UsersResource` and returned as HTTP 403 Forbidden
+
 ## Post-Change Build & Verification (MANDATORY)
 
 After every code change, you MUST build the affected module(s) and verify the server starts correctly. Never leave the software in a broken state.
@@ -285,7 +353,9 @@ tasklist 2>/dev/null | grep java.exe | awk '{print $2}' | while read pid; do tas
 Build only what you changed. Common modules:
 ```bash
 ./mvnw -f services/pom.xml clean install -DskipTests          # services (REST, auth, events)
-./mvnw -f server-spi-private/pom.xml clean install -DskipTests # SPI interfaces
+./mvnw -f server-spi/pom.xml clean install -DskipTests         # public SPI interfaces (e.g. LimitExceededException)
+./mvnw -f server-spi-private/pom.xml clean install -DskipTests # internal SPI interfaces
+./mvnw -f model/jpa/pom.xml clean install -DskipTests          # JPA model/persistence layer
 ./mvnw -f model/infinispan/pom.xml clean install -DskipTests   # model/cache layer
 ./mvnw -f themes/pom.xml clean install -DskipTests             # themes/templates
 ./mvnw -f crypto/default/pom.xml clean install -DskipTests     # crypto providers
@@ -358,6 +428,25 @@ On this Windows machine, `node` is not in the default shell PATH. Always prepend
 export PATH="/c/Program Files/nodejs:$PATH"
 ```
 Use `npx pnpm` or the full path if `pnpm` alone fails with "cannot execute: Is a directory".
+
+## Docker Deployment
+
+The repo includes Docker support for production deployment with PostgreSQL:
+- `Dockerfile` — Two-stage build: JDK 25 builder runs Quarkus augmentation (`kc.sh build --db=postgres`), JRE 25 runtime image
+- `docker-compose.yml` — PostgreSQL 16 + Keycloak with health checks, named volumes for data persistence
+- `DEPLOY.md` — Full step-by-step deployment guide (build, configure `.env`, start, reverse proxy setup, backup, upgrades)
+
+```bash
+# Build distribution, then Docker image
+./mvnw -pl quarkus/deployment,quarkus/dist -am -DskipTests clean install
+docker compose build
+
+# Configure secrets in .env (DB_PASSWORD, KC_HOSTNAME, BOOTSTRAP_ADMIN_PASSWORD)
+# Start services
+docker compose up -d
+```
+
+The `.env` file (gitignored) holds runtime secrets. `DEPLOY.md` has the full reference.
 
 ## Contributing Guidelines
 

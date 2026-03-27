@@ -30,9 +30,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Consumes(MediaType.APPLICATION_JSON)
 public class CloudAppsResource {
 
-    /** Name of the built-in client profile that enforces cloud-app security best-practices. */
-    public static final String CLOUD_APP_PROFILE = "cloud-application";
-
     private final KeycloakSession session;
     private final RealmModel realm;
     private final AdminPermissionEvaluator auth;
@@ -65,7 +62,8 @@ public class CloudAppsResource {
      * Register a new cloud application client.
      * Automatically sets: protocol=openid-connect, serviceAccountsEnabled=true,
      * publicClient=false, standardFlowEnabled=false, implicitFlowEnabled=false,
-     * directAccessGrantsEnabled=false, and applies the cloud-application client profile.
+     * directAccessGrantsEnabled=false; enforces secure client settings
+     * (service accounts enabled, confidential).
      */
     @POST
     @Operation(summary = "Register a new cloud application client")
@@ -91,6 +89,9 @@ public class CloudAppsResource {
         rep.setFullScopeAllowed(false);
 
         ClientModel client = ClientManager.createClient(session, realm, rep);
+        if (client == null) {
+            throw new BadRequestException("Failed to create client");
+        }
 
         adminEvent.operation(org.keycloak.events.admin.OperationType.CREATE)
                 .resource(org.keycloak.events.admin.ResourceType.CLIENT)
@@ -111,7 +112,7 @@ public class CloudAppsResource {
     @Operation(summary = "Get the name of the built-in cloud-application client profile")
     public Map<String, String> getProfile() {
         auth.clients().requireList();
-        return Map.of("profile", CLOUD_APP_PROFILE);
+        return Map.of("profile", "cloud-application");
     }
 
     private CloudAppRepresentation toRepresentation(ClientModel client) {

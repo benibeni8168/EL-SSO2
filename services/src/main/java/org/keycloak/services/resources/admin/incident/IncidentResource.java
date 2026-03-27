@@ -9,6 +9,9 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -99,21 +102,21 @@ public class IncidentResource {
                     .connectTimeout(Duration.ofSeconds(5))
                     .build();
 
-            String payload = String.format(
-                    "{\"source\":\"keycloak\","
-                    + "\"incidentType\":\"AUTH_EVENT\","
-                    + "\"eventType\":\"LOGIN_ERROR\","
-                    + "\"timestamp\":\"%s\","
-                    + "\"timestampEpochMs\":%d,"
-                    + "\"realmName\":\"%s\","
-                    + "\"clientId\":\"test-client\","
-                    + "\"userId\":\"incident-test-user\","
-                    + "\"ipAddress\":\"127.0.0.1\","
-                    + "\"error\":\"test_connection\","
-                    + "\"details\":{}}",
-                    Instant.now().toString(),
-                    System.currentTimeMillis(),
-                    realm.getName());
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode payloadNode = objectMapper.createObjectNode();
+            payloadNode.put("source", "keycloak");
+            payloadNode.put("incidentType", "AUTH_EVENT");
+            payloadNode.put("eventType", "LOGIN_ERROR");
+            Instant now = Instant.now();
+            payloadNode.put("timestamp", now.toString());
+            payloadNode.put("timestampEpochMs", now.toEpochMilli());
+            payloadNode.put("realmName", realm.getName());
+            payloadNode.put("clientId", "test-client");
+            payloadNode.put("userId", "incident-test-user");
+            payloadNode.put("ipAddress", "127.0.0.1");
+            payloadNode.put("error", "test_connection");
+            payloadNode.putObject("details");
+            String payload = objectMapper.writeValueAsString(payloadNode);
 
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(config.getWebhookUrl()))

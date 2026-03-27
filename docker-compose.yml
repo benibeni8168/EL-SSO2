@@ -1,0 +1,88 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - keycloak_net
+
+  keycloak:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: keycloak-enterprise:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    command: start
+    environment:
+      # --- Database ---
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: ${DB_USERNAME}
+      KC_DB_PASSWORD: ${DB_PASSWORD}
+
+      # --- Hostname & HTTP ---
+      # KC_HOSTNAME is the public-facing hostname (no protocol), e.g. sso.example.com
+      KC_HOSTNAME: ${KC_HOSTNAME}
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_PORT: "8080"
+
+      # --- Reverse proxy ---
+      # Trust X-Forwarded-For / X-Forwarded-Proto headers from the upstream proxy.
+      # Requires the proxy to set X-Forwarded-Proto: https — see DEPLOY.md for nginx config.
+      KC_PROXY_HEADERS: xforwarded
+
+      # --- Observability ---
+      KC_HEALTH_ENABLED: "true"
+
+      # --- Bootstrap admin (first-time only) ---
+      # Keycloak creates this admin on the very first start.
+      # Once the master realm admin exists, these variables are silently ignored.
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD}
+
+      # --- Custom enterprise features ---
+      # Backup files are stored in the named volume so they survive container restarts.
+      JAVA_OPTS_APPEND: "-Dkeycloak.backup.dir=/opt/keycloak/data/backups"
+
+    volumes:
+      # Persists: backup ZIPs, transaction logs, and any runtime data state
+      - keycloak_data:/opt/keycloak/data
+    ports:
+      # HTTP port exposed for the reverse proxy to forward to.
+      # Port 9000 (management/health) is intentionally not exposed to the host.
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/health/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      # Allow extra time for Liquibase DB migrations on first start
+      start_period: 120s
+    networks:
+      - keycloak_net
+
+volumes:
+  postgres_data:
+    driver: local
+  keycloak_data:
+    driver: local
+
+networks:
+  keycloak_net:
+    driver: bridge
