@@ -41,7 +41,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 import org.keycloak.authorization.fgap.AdminPermissionsSchema;
-import org.keycloak.common.constants.ServiceAccountConstants;
 import org.keycloak.common.util.Time;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.connections.jpa.support.EntityManagers;
@@ -53,7 +52,6 @@ import org.keycloak.models.FederatedIdentityModel;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.LimitExceededException;
 import org.keycloak.models.ModelDuplicateException;
 import org.keycloak.models.ModelException;
 import org.keycloak.models.ProtocolMapperModel;
@@ -91,8 +89,6 @@ import static org.keycloak.utils.StreamsUtil.closing;
 @SuppressWarnings("JpaQueryApiInspection")
 public class JpaUserProvider implements UserProvider, UserCredentialStore, JpaUserPartialEvaluationProvider {
 
-    private static final int MAX_USERS_PER_REALM = 20;
-
     private static final String EMAIL = "email";
     private static final String EMAIL_VERIFIED = "emailVerified";
     private static final String USERNAME = "username";
@@ -110,29 +106,10 @@ public class JpaUserProvider implements UserProvider, UserCredentialStore, JpaUs
         credentialStore = new JpaUserCredentialStore(session, em);
     }
 
-    private int countRealmUsers(RealmModel realm) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> query = cb.createQuery(Long.class);
-        Root<UserEntity> root = query.from(UserEntity.class);
-        query.select(cb.count(root)).where(
-                cb.equal(root.get("realmId"), realm.getId()),
-                cb.isNull(root.get("serviceAccountClientLink")));
-        return em.createQuery(query).getSingleResult().intValue();
-    }
-
     @Override
     public UserModel addUser(RealmModel realm, String id, String username, boolean addDefaultRoles, boolean addDefaultRequiredActions) {
         if (id == null) {
             id = KeycloakModelUtils.generateId();
-        }
-
-        if (!username.toLowerCase().startsWith(ServiceAccountConstants.SERVICE_ACCOUNT_USER_PREFIX)) {
-            int currentCount = countRealmUsers(realm);
-            if (currentCount >= MAX_USERS_PER_REALM) {
-                throw new LimitExceededException(
-                        "User limit reached for realm '" + realm.getName()
-                                + "': maximum " + MAX_USERS_PER_REALM + " users allowed per realm.");
-            }
         }
 
         UserEntity entity = new UserEntity();

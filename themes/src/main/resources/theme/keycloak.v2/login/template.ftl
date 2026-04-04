@@ -37,8 +37,8 @@
             <meta name="${meta?split('==')[0]}" content="${meta?split('==')[1]}"/>
         </#list>
     </#if>
-    <title>Teindi | Secure Access</title>
-    <link rel="icon" href="${url.resourcesPath}/img/teindi-mark.svg" type="image/svg+xml" />
+    <title>EL-SSO | Secure Access</title>
+    <link rel="icon" href="${url.resourcesPath}/img/el-sso-logo.png" type="image/png" />
     <#if properties.stylesCommon?has_content>
         <#list properties.stylesCommon?split(' ') as style>
             <link href="${url.resourcesCommonPath}/${style}" rel="stylesheet" />
@@ -141,9 +141,9 @@
     <header id="kc-header" class="pf-v5-c-login__header">
       <div id="kc-header-wrapper"
               class="pf-v5-c-brand">
-        <span class="teindi-brand-badge">Teindi Secure Access</span>
-        <img class="teindi-brand-logo" src="${url.resourcesPath}/img/teindi-logo-full.png" alt="Teindi" />
-        <p class="teindi-brand-copy">Discreet identity, federation, and account access for the Teindi platform.</p>
+        <span class="el-sso-brand-badge">EL-SSO Secure Access</span>
+        <img class="el-sso-brand-logo" src="${url.resourcesPath}/img/el-sso-logo.png" alt="EL-SSO" />
+        <p class="el-sso-brand-copy">Discreet identity, federation, and account access for the EL-SSO platform.</p>
       </div>
     </header>
     <main class="${properties.kcLoginMain!}">

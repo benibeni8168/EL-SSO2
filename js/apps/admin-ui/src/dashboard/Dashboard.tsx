@@ -3,10 +3,7 @@ import FeatureRepresentation, {
 } from "@keycloak/keycloak-admin-client/lib/defs/featureRepresentation";
 import { HelpItem, label, useEnvironment } from "@keycloak/keycloak-ui-shared";
 import {
-  ActionList,
-  ActionListItem,
   Brand,
-  Button,
   Card,
   CardBody,
   CardTitle,
@@ -40,7 +37,6 @@ import {
 } from "../components/routable-tabs/RoutableTabs";
 import { useRealm } from "../context/realm-context/RealmContext";
 import { useServerInfo } from "../context/server-info/ServerInfoProvider";
-import helpUrls from "../help-urls";
 import useLocaleSort, { mapByKey } from "../utils/useLocaleSort";
 import { ProviderInfo } from "./ProviderInfo";
 import { DashboardTab, toDashboard } from "./routes/Dashboard";
@@ -60,7 +56,7 @@ const EmptyDashboard = () => {
       <EmptyState variant="lg">
         <Brand
           src={environment.resourceUrl + brandImage}
-          alt="Teindi logo"
+          alt="EL-SSO"
           className="keycloak__dashboard_icon"
         />
         <EmptyStateHeader titleText={<>{t("welcome")}</>} headingLevel="h2" />
@@ -180,49 +176,6 @@ const Dashboard = () => {
                 <div className="pf-v5-l-grid__item keycloak__dashboard_welcome_tab">
                   <Text component={TextVariants.h3}>{t("welcomeText")}</Text>
                 </div>
-                <div className="pf-v5-l-grid__item pf-m-10-col pf-v5-u-mt-md">
-                  <Button
-                    className="pf-v5-u-px-lg pf-v5-u-py-sm"
-                    component="a"
-                    href={helpUrls.documentation}
-                    target="_blank"
-                    variant="primary"
-                  >
-                    {t("viewDocumentation")}
-                  </Button>
-                </div>
-                <ActionList className="pf-v5-u-mt-sm">
-                  <ActionListItem>
-                    <Button
-                      component="a"
-                      href={helpUrls.guides}
-                      target="_blank"
-                      variant="tertiary"
-                    >
-                      {t("viewGuides")}
-                    </Button>
-                  </ActionListItem>
-                  <ActionListItem>
-                    <Button
-                      component="a"
-                      href={helpUrls.community}
-                      target="_blank"
-                      variant="tertiary"
-                    >
-                      {t("joinCommunity")}
-                    </Button>
-                  </ActionListItem>
-                  <ActionListItem>
-                    <Button
-                      component="a"
-                      href={helpUrls.blog}
-                      target="_blank"
-                      variant="tertiary"
-                    >
-                      {t("readBlog")}
-                    </Button>
-                  </ActionListItem>
-                </ActionList>
               </div>
             </PageSection>
           </Tab>

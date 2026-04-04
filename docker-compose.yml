@@ -23,7 +23,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: keycloak-enterprise:${IMAGE_TAG:-latest}
+    image: el-sso:${IMAGE_TAG:-latest}
     restart: unless-stopped
     command: start
     environment:
@@ -48,7 +48,7 @@ services:
       KC_HEALTH_ENABLED: "true"
 
       # --- Bootstrap admin (first-time only) ---
-      # Keycloak creates this admin on the very first start.
+      # EL-SSO creates this admin on the very first start.
       # Once the master realm admin exists, these variables are silently ignored.
       KC_BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD}

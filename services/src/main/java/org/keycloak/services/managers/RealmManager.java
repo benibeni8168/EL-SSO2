@@ -44,7 +44,6 @@ import org.keycloak.models.Constants;
 import org.keycloak.models.ImpersonationConstants;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
-import org.keycloak.models.LimitExceededException;
 import org.keycloak.models.ModelDuplicateException;
 import org.keycloak.models.ModelException;
 import org.keycloak.models.OTPPolicy;
@@ -91,8 +90,6 @@ import static org.keycloak.models.Constants.CREATE_DEFAULT_CLIENT_SCOPES;
  */
 public class RealmManager {
 
-    private static final int MAX_NON_MASTER_REALMS = 1;
-
     protected KeycloakSession session;
     protected RealmProvider model;
 
@@ -121,17 +118,6 @@ public class RealmManager {
         return model.getRealmByName(name);
     }
 
-    private void validateRealmLimit() {
-        long nonMasterRealmCount = session.realms().getRealmsStream()
-                .filter(r -> !isAdministrationRealm(r))
-                .count();
-        if (nonMasterRealmCount >= MAX_NON_MASTER_REALMS) {
-            throw new LimitExceededException(
-                    "Realm limit reached: maximum " + MAX_NON_MASTER_REALMS
-                            + " realm(s) allowed beyond the master realm.");
-        }
-    }
-
     public RealmModel createRealm(String name) {
         return createRealm(null, name);
     }
@@ -144,9 +130,6 @@ public class RealmManager {
             ReservedCharValidator.validate(id);
         }
         ReservedCharValidator.validate(name);
-        if (!name.equals(Config.getAdminRealm())) {
-            validateRealmLimit();
-        }
         RealmModel realm = model.createRealm(id, name);
         realm.setName(name);
 
@@ -605,10 +588,6 @@ public class RealmManager {
         if (session.realms().getRealmByName(rep.getRealm()) != null) {
             throw new ModelDuplicateException("Realm " + rep.getRealm() + " already exists");
         }
-        if (!Config.getAdminRealm().equals(rep.getRealm())) {
-            validateRealmLimit();
-        }
-
         RealmModel realm = model.createRealm(id, rep.getRealm());
         RealmModel currentRealm = session.getContext().getRealm();
 

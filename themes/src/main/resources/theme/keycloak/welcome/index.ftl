@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light${(properties.darkMode)?boolean?then(' dark', '')}">
-    <title>Welcome to Teindi</title>
+    <title>Welcome to EL-SSO</title>
     <link rel="icon" type="image/svg+xml" href="${resourcesPath}/logo.svg">
     <#if properties.darkMode?boolean>
       <script type="module" async blocking="render">
@@ -42,20 +42,20 @@
       <div class="pf-v5-c-login__container">
         <header class="pf-v5-c-login__header">
           <div class="pf-v5-c-brand">
-            <img src="${resourcesPath}/logo-full.png" alt="Teindi" class="kc-brand">
+            <img src="${resourcesPath}/logo-full.png" alt="EL-SSO" class="kc-brand">
           </div>
         </header>
         <#if adminConsoleEnabled && (bootstrap || successMessage?has_content)>
           <main class="pf-v5-c-login__main">
             <header class="pf-v5-c-login__main-header">
               <#if localUser>
-                <h1 class="pf-v5-c-title pf-m-2xl">Create a Teindi administrator</h1>
+                <h1 class="pf-v5-c-title pf-m-2xl">Create a EL-SSO administrator</h1>
                 <#if !successMessage?has_content>
-                  <p class="pf-v5-c-login__main-header-desc">Create the first operator account for the Teindi access platform.</p>
+                  <p class="pf-v5-c-login__main-header-desc">Create the first operator account for the EL-SSO access platform.</p>
                 </#if>
               <#else>
                 <h1 class="pf-v5-c-title pf-m-3xl">Local setup required</h1>
-                <p class="pf-v5-c-login__main-header-desc">Local access is required to initialize the first Teindi administrator.</p>
+                <p class="pf-v5-c-login__main-header-desc">Local access is required to initialize the first EL-SSO administrator.</p>
               </#if>
             </header>
             <div class="pf-v5-c-login__main-body">
@@ -70,7 +70,7 @@
                     <span class="pf-v5-screen-reader">Success alert:</span>${successMessage}
                   </h4>
                 </div>
-                <a class="pf-v5-c-button pf-m-primary pf-m-block" href="${adminUrl}">Open Teindi Control Center</a>
+                <a class="pf-v5-c-button pf-m-primary pf-m-block" href="${adminUrl}">Open EL-SSO Control Center</a>
               </#if>
               <#if bootstrap>
                 <#if localUser>
@@ -167,7 +167,7 @@
                     </div>
                   </form>
                 <#else>
-                  <p>To create the first operator, open the Teindi Control Center on localhost or use the <code>bootstrap-admin</code> command.</p>
+                  <p>To create the first operator, open the EL-SSO Control Center on localhost or use the <code>bootstrap-admin</code> command.</p>
                 </#if>
               </#if>
             </div>

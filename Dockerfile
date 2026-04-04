@@ -26,9 +26,9 @@ RUN /opt/keycloak/bin/kc.sh build \
 # =============================================================================
 FROM eclipse-temurin:25-jre AS runtime
 
-LABEL org.opencontainers.image.title="Keycloak Enterprise" \
+LABEL org.opencontainers.image.title="EL-SSO" \
       org.opencontainers.image.version="999.0.0-SNAPSHOT" \
-      org.opencontainers.image.description="Custom Keycloak fork with enterprise security features"
+      org.opencontainers.image.description="EL-SSO - Enterprise Identity & Access Management"
 
 ENV KC_RUN_IN_CONTAINER=true \
     LANG=en_US.UTF-8
