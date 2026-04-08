@@ -335,8 +335,8 @@ importers:
         specifier: ^1.0.0-preview.80
         version: 1.0.0-preview.99
       '@microsoft/kiota-serialization-form':
-        specifier: ^1.0.0-preview.74
-        version: 1.0.0-preview.99
+        specifier: ^1.0.0-preview.100
+        version: 1.0.0-preview.100
       '@microsoft/kiota-serialization-json':
         specifier: ^1.0.0-preview.86
         version: 1.0.0-preview.99
@@ -1073,14 +1073,17 @@ packages:
     resolution: {integrity: sha512-LhKytJM5ZJkbHQVfW/3o747rZUNs/MGg6j/wt/9qwwqEOfvUDTYXXxIBuMgrRXhJ528p41iyz4zjBVHZU74Odg==}
     hasBin: true
 
+  '@microsoft/kiota-abstractions@1.0.0-preview.100':
+    resolution: {integrity: sha512-3s2WYKQ6WLB/0pyDmmv9bigH/3LZ0Mm4ldHskNLBj0U8DYjFzfG729snnEij+hZN0l2XHr37pGBr1MZK8vM7zQ==}
+
   '@microsoft/kiota-abstractions@1.0.0-preview.99':
     resolution: {integrity: sha512-6qrlwGCO3DbvpA7tszqk7JNQPFPDg8gv5NGMTziwdtHqaQrUALKusm3vdJGPVGrbNiZL6/lBaY5NSUvLtlhRCg==}
 
   '@microsoft/kiota-http-fetchlibrary@1.0.0-preview.99':
     resolution: {integrity: sha512-lIruiYf8L7DPG0Fm92QN5YK4zx4sh76EtTONUAqBCxt5AtEJ7KQceBajaXQsjfcndUAp9LmDVdqR44o8sc9/mA==}
 
-  '@microsoft/kiota-serialization-form@1.0.0-preview.99':
-    resolution: {integrity: sha512-BdXxqNfy+5yWTyxpBguqJYy6E9RRotrDClRcUO89okFcR5N6s6xenjsvGw++q9KWNi7qcHrqaG8xlRz1TLk81Q==}
+  '@microsoft/kiota-serialization-form@1.0.0-preview.100':
+    resolution: {integrity: sha512-SR/yWBtvKYhN2ARR4wVMFb91XgN32DBmLLQmtemdKgL1YWBxVCNAUP/qHbZhrTX7q4kh7jl/S9yrr1S8ySS7AA==}
 
   '@microsoft/kiota-serialization-json@1.0.0-preview.99':
     resolution: {integrity: sha512-kDmMYmB7XkRprlLviEynRPDkE45JDxqiuUopfBRMvNK4qhzFiJTXGLihZ2FG6fdVu9LbV3/W0QxbeGP35kDK6A==}
@@ -2747,6 +2750,7 @@ packages:
 
   glob@10.5.0:
     resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   globals@14.0.0:
@@ -5136,6 +5140,13 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
+  '@microsoft/kiota-abstractions@1.0.0-preview.100':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@std-uritemplate/std-uritemplate': 2.0.8
+      tinyduration: 3.4.1
+      tslib: 2.8.1
+
   '@microsoft/kiota-abstractions@1.0.0-preview.99':
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -5149,9 +5160,9 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       tslib: 2.8.1
 
-  '@microsoft/kiota-serialization-form@1.0.0-preview.99':
+  '@microsoft/kiota-serialization-form@1.0.0-preview.100':
     dependencies:
-      '@microsoft/kiota-abstractions': 1.0.0-preview.99
+      '@microsoft/kiota-abstractions': 1.0.0-preview.100
       tslib: 2.8.1
 
   '@microsoft/kiota-serialization-json@1.0.0-preview.99':
